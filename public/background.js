@@ -58,8 +58,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     });
     const tabGroup = await chrome.tabGroups.get(groupId);
 
-    await chrome.windows.update(tabGroup.windowId, {focused: true});
-    await chrome.tabs.update(tabId, {active: true});
+    if (tabGroup.windowId !== tab.windowId) {
+      console.debug(`We've just saved a window, group window: ${tabGroup.windowId}, tab window: ${tab.windowId}`);
+      await chrome.windows.update(tabGroup.windowId, {focused: true});
+      await chrome.tabs.update(tabId, {active: true});
+    }
 
     // save group id & update group
     if (!GROUP_DOMAINS[hostname]) {
