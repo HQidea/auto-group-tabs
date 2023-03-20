@@ -41,13 +41,13 @@ chrome.tabGroups.onRemoved.addListener(group => {
 // 监听tab变更事件
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   console.debug('tabs updated', tabId, changeInfo, tab);
-  const {url : newUrl, groupId} = changeInfo;
-  const {url} = tab;
-  const u = new URL(url);
-  const hostname = u.hostname;
+  const {url} = changeInfo;
 
   // url has changed
-  if (newUrl) {
+  if (url) {
+    const u = new URL(url);
+    const hostname = u.hostname;
+
     if (HOST_BLACK_LIST.includes(hostname)) {
       return;
     }
