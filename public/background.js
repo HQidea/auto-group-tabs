@@ -23,7 +23,7 @@ const domainStrategy = {
     let tabs;
     await chrome.tabs
       .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        // windowId: chrome.windows.WINDOW_ID_CURRENT,
         pinned: false,
       })
       .then((allTabs) => {
@@ -45,7 +45,7 @@ const secDomainStrategy = {
     let tabs;
     await chrome.tabs
       .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        // windowId: chrome.windows.WINDOW_ID_CURRENT,
         pinned: false,
       })
       .then((allTabs) => {
@@ -71,7 +71,7 @@ const tabTitleStrategy = {
   querySameTabs: () => {
     const queryInfo = {
       title: `*${userConfig.tabTitlePattern}*`,
-      windowId: chrome.windows.WINDOW_ID_CURRENT,
+      // windowId: chrome.windows.WINDOW_ID_CURRENT,
       pinned: false,
     };
     return chrome.tabs.query(queryInfo);
@@ -147,7 +147,7 @@ chrome.commands.onCommand.addListener((command) => {
 
 function mergeSameTabs() {
   chrome.tabs
-    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
+    .query({ /* windowId: chrome.windows.WINDOW_ID_CURRENT */ })
     .then((tabs) => {
       let tabGroups = {};
       tabs.forEach((tab) => {
@@ -173,7 +173,7 @@ function groupAllTabs() {
   });
 
   chrome.tabs
-    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false,})
+    .query({ /* windowId: chrome.windows.WINDOW_ID_CURRENT, */ pinned: false,})
     .then((tabs) => {
       const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
       // 按groupTitle分组，key为groupTitle，value为tabs
@@ -215,25 +215,41 @@ function groupTabs(tab, strategy) {
     // 如果tab存在就加入分组，否则就新建分组
     if (GROUP_MAP.has(groupKey)) {
       const groupId = GROUP_MAP.get(groupKey);
-      chrome.tabs.group({ tabIds, groupId: groupId });
+      chrome.tabs.group({ tabIds, groupId: groupId })
+        .then(() => {
+          chrome.tabGroups.get(groupId).then(group => {
+            // if (group.windowId !== chrome.windows.WINDOW_ID_CURRENT) {} // always true
+            chrome.windows.update(group.windowId, {focused: true});
+            chrome.tabs.update(tab.id, {active: true});
+          });
+        });
     } else {
       newGroup(tabIds, strategy.getGroupTitle(tab));
     }
   });
 }
 
+function randomProperty(obj) {
+  const keys = Object.keys(obj);
+  return obj[keys[keys.length * Math.random() << 0]];
+}
+
 function newGroup(tabIds, title) {
   chrome.tabs.group({ tabIds }).then((groupId) => {
     GROUP_MAP.set(getGroupKey(title), groupId);
     if (userConfig.enableShowGroupTitle) {
-      chrome.tabGroups.update(groupId, { title });
+      chrome.tabGroups.update(groupId, {
+        title,
+        color: randomProperty(chrome.tabGroups.Color)
+       });
     }
   });
 }
 
 function getGroupKey(groupTitle) {
   // GroupKey包含windowId，实现不同window的tab之间的隔离
-  return chrome.windows.WINDOW_ID_CURRENT + ':' + groupTitle;
+  // 测试过程中，无法从log中获取windowId，置为-1
+  return '-1' + ':' + groupTitle;
 }
 
 function getDomain(url) {
