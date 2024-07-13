@@ -33,7 +33,7 @@ export const domainStrategy = {
     let tabs;
     await chrome.tabs
       .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        // windowId: chrome.windows.WINDOW_ID_CURRENT,
         pinned: false,
       })
       .then((allTabs) => {
@@ -59,7 +59,7 @@ export const secDomainStrategy = {
     let tabs;
     await chrome.tabs
       .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        // windowId: chrome.windows.WINDOW_ID_CURRENT,
         pinned: false,
       })
       .then((allTabs) => {
@@ -93,7 +93,7 @@ export const configStrategy = {
     let tabs;
     await chrome.tabs
       .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        // windowId: chrome.windows.WINDOW_ID_CURRENT,
         pinned: false,
       })
       .then((allTabs) => {

@@ -74,7 +74,7 @@ function groupTabs(tab, strategy) {
       chrome.tabGroups
         .query({
           title: groupTitle,
-          windowId: chrome.windows.WINDOW_ID_CURRENT,
+          // windowId: chrome.windows.WINDOW_ID_CURRENT,
         })
         .then((tabGroups) => {
           if (tabGroups && tabGroups.length > 0) {
@@ -109,7 +109,7 @@ function groupAllTabs() {
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
     userConfig = { ...DEFAULT_CONFIG, ...config };
     chrome.tabs
-    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false })
+    .query({ /* windowId: chrome.windows.WINDOW_ID_CURRENT, */ pinned: false })
     .then((tabs) => {
       const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
       // 按groupTitle分组，key为groupTitle，value为tabs
